@@ -130,7 +130,7 @@ function changepal_gui(line,num) {
 
 function palettename(ele) {
 	var clr = ele.style.backgroundColor.match(/\d+/g);
-	$('palfoot').innerHTML = "Red: "+clr[0]+" Green: "+clr[1]+" Blue: "+clr[2];
+	$('palfoot').innerHTML = "Red: "+hexdump(clr[0])+" Green: "+hexdump(clr[1])+" Blue: "+hexdump(clr[2]);
 }
 
 var colours = [0,2,4,6,8,0xA,0xC,0xE];
@@ -228,12 +228,12 @@ function addmappingmenu(ele,dyn,move) {
     var data = (function () {
         /*
         		<span id="mapdplc">Add new mapping piece</span>&emsp;<input type="button" value="Cancel" onClick="this.parentNode.remove()" style="width:60px">
-        		<table class="addtable">
+        		<table class="addtable" id="addtable">
         		<tr>
-        			<td><div id="a0" style="width:32px"></div></td>
-        			<td><div id="a1" style="width:64px"></div></td>
-        			<td><div id="a2" style="width:96px"></div></td>
-        			<td><div id="a3" style="width:128px"></div></td>
+        			<td id="ta0"><div id="a0"></div></td>
+        			<td id="ta1"><div id="a1"></div></td>
+        			<td id="ta2"><div id="a2"></div></td>
+        			<td id="ta3"><div id="a3"></div></td>
         		</tr>
         		<tr>
         			<td><div id="a4"></div></td>
@@ -258,16 +258,20 @@ function addmappingmenu(ele,dyn,move) {
     }).toString().replace(/^[^\/]+\/\*!?/, '').replace(/\*\/[^\/]+$/, '');
     createmessage(340, 360, data, null, null, null, "mappingmenu");
 
-   if(ele) menu_tile = ele.id.slice(1);
+	if(ele) menu_tile = ele.id.slice(1);
+	
+	// zoomfix
+	for(var i=0;i<3;i++) $('ta'+i).style.width = ((zoom*8) * (i+1))+'px';
+	$('addtable').style.width = ((zoom*80) + 30)+'px';
     
-    for (x = 0, i = 0; 4 > i; i++) {
+    for (var x = 0, i = 0; 4 > i; i++) {
         t = menu_tile;
 
         for (var j = 0; j < i + 1; j++) {
             loadonemap("choose html5nuke", $("a" + i), t++, 32 * j, 1, null, dyn);
         }
     }
-    for (i = 4; 8 > i; i++) {
+    for (var i = 4; 8 > i; i++) {
         for (tfix = generatematricies(2), j = x = 0; j < i - 3; j++) {
             for (var k = 0; 2 > k; k++) {
                 loadonemap("choose html5nuke", $("a" + i), parseInt(menu_tile) + parseInt(tfix[i - 4][x++]),null,null,null,dyn);
@@ -275,14 +279,14 @@ function addmappingmenu(ele,dyn,move) {
 
         }
     }
-    for (i = 8; 12 > i; i++) {
+    for (var i = 8; 12 > i; i++) {
         for (tfix = generatematricies(3), j = x = 0; j <= i - 8; j++) {
             for (k = 0; 3 > k; k++) {
                 loadonemap("choose html5nuke", $("a" + i), parseInt(menu_tile) + parseInt(tfix[i - 8][x++]),null,null,null,dyn);
             }
         }
     }
-    for (i = 12; 16 > i; i++) {
+    for (var i = 12; 16 > i; i++) {
         for (tfix = generatematricies(4), j = x = 0; j < i - 11; j++) {
             for (k = 0; 4 > k; k++) {
                 loadonemap("choose html5nuke", $("a" + i), parseInt(menu_tile) + parseInt(tfix[i - 12][x++]),null,null,null,dyn);
@@ -444,6 +448,8 @@ function guidelinesmenu() {
 function guidelines(x_pos,y_pos) {
 	if(x_pos==null) x_pos = parseInt($('gu_x').value);
 	if(y_pos==null) y_pos = parseInt($('gu_y').value);
+	x_pos*=zoom;
+	y_pos*=zoom;
 	if (state.map == "") return 0;
 	remove_guidelines();
 	var x = document.createElement('div');

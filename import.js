@@ -70,7 +70,7 @@ function importmenu(x_blox,y_blox) {
 		'<input type="button" value="Add Tiles Only" onClick="importtilesonly()">' +
 		'<input type="button" value="Clear Maps" onClick="clearmaps()">' +
 		'<input type="button" value="Add Mappings" onClick="importmaps('+x_blox+','+y_blox+')">' +
-		'<input type="button" value="Mappings & DPLCs" onClick="importmaps('+x_blox+','+y_blox+',1)">' +
+		((state.map!=""&&state.dplc=="")?'':'<input type="button" value="Mappings & DPLCs" onClick="importmaps('+x_blox+','+y_blox+',1)">') +
 		'<input type="button" value="Cancel" onClick="this.parentNode.remove()">';
     createmessage(((x_blox)*32), ((y_blox)*32)+165, data, null, null, null, "importmenu");
 	
@@ -142,7 +142,14 @@ function clearmaps() {
 	parseimports();
 }
 
+function delete_last_map() {
+	if(import_maps.length==0) return;
+	import_maps.pop();
+	parseimports();
+}
+
 function importmaps(x_blox,y_blox,dyn) {
+	if(dyn&&state.map!=""&&state.dplc=="") dyn = 0;
 	if(state.dplc != "") dyn = 1;
 	// get X/Y here
 	var top = $('i0').offsetTop;
@@ -152,7 +159,7 @@ function importmaps(x_blox,y_blox,dyn) {
 		import_maps[i][4] = ($(import_maps[i][0]).offsetTop-top);
 	}
 	// get top tile for dyn
-	for(var max=0;$('t'+max);max++); // if dplc remove tile number/size/loop from maps (ele[0])
+	for(var max=0;dyn&&$('t'+max);max++); // if dplc remove tile number/size/loop from maps (ele[0])
 	
 	for(var i=0;i<import_maps.length;i++) {
 		var tile = parseInt($(import_maps[i][0]).id.slice(1)); // tile from menu

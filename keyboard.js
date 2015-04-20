@@ -65,6 +65,7 @@ Mousetrap.bindGlobal('backspace+a',unloadart);
 Mousetrap.bindGlobal('backspace+m',unloadmaps);
 Mousetrap.bindGlobal('backspace+d',unloaddplc);
 Mousetrap.bindGlobal('backspace+x',unload_all);
+Mousetrap.bindGlobal('~',delete_last_map);
 
 Mousetrap.bindGlobal('pageup',function(){for(var i=0;i++<8;)nextsprite()});
 Mousetrap.bindGlobal('pagedown',function(){for(var i=0;i++<8;)prevsprite()});

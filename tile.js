@@ -139,12 +139,12 @@ function unloadart() {
 function randomtile(hidden) {
 	var c = document.createElement('canvas');
 	$('tiles').appendChild(c);
-	c.width = 32;
-	c.height = 32;
+	c.width = (zoom*8);
+	c.height = (zoom*8);
 	c.className="tile";
 	if(hidden) c.style.display = 'none';
 	var piece = c.getContext("2d");
-	piece.scale(4,4);
+	piece.scale(zoom,zoom);
 	var pxl = 0;
 	var y = -1;
 	for(var i=0;i<0x40;i++) {
@@ -159,8 +159,8 @@ function drawtile(tile,line,p) {
 	var c = document.createElement('canvas');
 	if(!p) $('tiles').appendChild(c);
 	c.id = 't'+tile;
-	c.width = 32;
-	c.height = 32;
+	c.width = (zoom*8);
+	c.height = (zoom*8);
 	c.innerHTML=tile;
 	c.className="tile";
     c.setAttribute("onclick","addmappingmenu(this)");
@@ -168,7 +168,7 @@ function drawtile(tile,line,p) {
 	c.setAttribute("oncontextmenu","tilemenu(this);return false;");
 	c.setAttribute("ondblclick","deletetilemenu(this);");
 	var piece = c.getContext("2d");
-	piece.scale(4,4);
+	piece.scale(zoom,zoom);
 	drawtocanvas(piece,tile,line);
 	return c;
 }

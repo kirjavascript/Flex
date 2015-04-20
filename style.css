@@ -1,0 +1,38 @@
+body{color:#777;font-family:arial;font-size:15px;font-weight:700;}
+a{color:#777}
+img{border:0px;}
+input,select{background-color:#ededed;color:#777;font-family:arial;font-size:10px;font-weight:900;padding:1px;width:100px}
+h1{font-size:120px;margin-bottom:50px}
+.palette{width:25px;height:25px;margin:0px;display:inline-block}
+.choose{cursor:pointer;cursor:hand;}
+.html5nuke{padding:0px;margin:0px;vertical-align: top;}
+.addr{display:inline-block}
+.pal_menu{width:100;position:absolute;top:0px;left:0px}
+.tile_holder{overflow-y:auto;width:100%;bottom:0px;position:absolute;top:400px;right:0px;left:0px;background-image:url("t.png")}
+.menu{position:absolute;left:110px;top:10px}
+.tile{display:inline-block;vertical-align:top;}
+.tile:hover{outline:4px #FFF solid;transform: scale(1.2);} /*  */
+.itile{display:inline-block;vertical-align:top;outline: 1px solid black}
+.map{position:absolute;background-image:url("t.png");background-size: cover;z-index:1}
+.imap{position:absolute;box-shadow: 0px 0px 0px 4px #FE0 inset;z-index:10;margin:0px}
+.piece{position:absolute;z-index:2}
+.piece:hover{outline:solid 4px #F80;box-sizing:border-box;z-index:3}
+.flipX{transform:scaleX(-1)}
+.flipY{transform:scaleY(-1)}
+.flipflop{transform:scale(-1,-1);}
+.mappings{position:absolute;top:0px;right:0px;background-image:url("t.png");height:400px;width:600px;z-index:0}
+.edittile{height:240px;width:272px}
+.bigtile{height:30px;width:30px;float:left;border:1px solid black}
+.selectors{height:20px;width:20px;border:1px solid black;display:inline-block}
+.minipalette{height:15px;width:15px;border:1px solid black;display:inline-block}
+.editpalette{width:560px;}
+.dplc_vram{display:none;position:absolute;top:0px;right:600px;background-image:url("t.png");height:360px;width:128px;border:2px solid #FFF;background-color:#FFF;padding:5px}
+.info{position:absolute;top:0px;right:0px;text-align:right}
+.mapinfo{position:absolute;top:35px;right:0px;text-align:right}
+.mapmenu{position:absolute;top:0px;right:500px;text-align:center}
+.option{position:absolute;top:10px;left:220px;border:2px solid #777;background-color:#FFF;padding:5px}
+.x{position:absolute;top:0px;width:1px;height:400px;background-color:#000;z-index:4}
+.y{position:absolute;right:0px;width:600px;height:1px;background-color:#000;z-index:4}
+.miniinput{width:50px;text-align:center}
+table:addtable{table-layout:fixed;border-collapse:collapse;border:0px;}
+table:addtable td{position:absolute];

@@ -1,153 +1,175 @@
 <head>
-    <meta content="text/html;charset=utf-8" http-equiv="Content-Type">
-    <link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAPJYhAA0NawANvv8AiuBDAJYhRABUaxUARkbgABgYxACKTxEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADMzBERAZmYAMzMEREBmZgAzMwREQGZmADMzBERAZmYAAAAAAAAAAAB3dwEREJmZAHd3AREQmZkAd3cBERCZmQB3dwEREJmZAAAAAAAAAAAAiIgCIiBVVQCIiAIiIFVVAIiIAiIgVVUAiIgCIiBVVQAAAAAAAAAAD//wAAhCEAAIQhAACEIQAAhCEAAP//AACEIQAAhCEAAIQhAACEIQAA//8AAIQhAACEIQAAhCEAAIQhAAD//wAA" rel="icon" type="image/x-icon" />
-    <link rel="stylesheet" type="text/css" href="style.css">
-    <title>Flex</title>
-    </head>
-    <script>
-        /*
+	<meta content="text/html;charset=utf-8" http-equiv="Content-Type">
+	<link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAAPJYhAA0NawANvv8AiuBDAJYhRABUaxUARkbgABgYxACKTxEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADMzBERAZmYAMzMEREBmZgAzMwREQGZmADMzBERAZmYAAAAAAAAAAAB3dwEREJmZAHd3AREQmZkAd3cBERCZmQB3dwEREJmZAAAAAAAAAAAAiIgCIiBVVQCIiAIiIFVVAIiIAiIgVVUAiIgCIiBVVQAAAAAAAAAAD//wAAhCEAAIQhAACEIQAAhCEAAP//AACEIQAAhCEAAIQhAACEIQAA//8AAIQhAACEIQAAhCEAAIQhAAD//wAA" rel="icon" type="image/x-icon" />
+	<link rel="stylesheet" type="text/css" href="style.css">
+	<title>Flex</title>
+</head>
+<script>
+	/*
 			Flex - Web based mappings editor by snkenjoi
 
 			thanks to FraGag, flamewing, MainMemory, MarkeyJester, cwfluff and Xenowhirl
-		
+
 			[t0,m0,d0,i0,im0] tile,map,dplc,import,importmap
 		*/
 
-        var state = {
-            palettes: [],
-            art: "",
-            map: "",
-            dplc: "",
-            map_hdr: [],
-            map_arr: [],
-            dplc_hdr: [], // stores VRAM for drawing from alternative palette lines
-            dplc_arr: [],
-            map_frame: 0,
-            palette_line: 0,
-            filename: [],
-			mode: 0 // mapping mode
-        };
-        state.palettes[0] = "\x00\x00\x00\x00\x0A\x22\x0C\x42\x0E\x44\x0E\x66\x0E\xEE\x0A\xAA\x08\x88\x04\x44\x08\xAE\x04\x6A\x00\x0E\x00\x08\x00\xAE\x00\x8E";
-        state.palettes[1] = "\x00\x00\x02\x02\x04\x04\x06\x06\x08\x08\x0A\x0A\x0C\x0C\x0E\x0E\x0E\x0C\x0C\x0A\x0A\x08\x08\x06\x06\x04\x04\x02\x02\x00\x00\x0E";
-        state.palettes[2] = "\x00\x00\x00\x22\x00\x44\x00\x66\x00\x88\x00\xAA\x00\xCC\x00\xEE\x00\xCE\x00\xAC\x00\x8A\x00\x68\x00\x46\x00\x24\x00\x02\x00\xE0";
-        state.palettes[3] = "\x00\x00\x02\x20\x04\x40\x06\x60\x08\x80\x0A\xA0\x0C\xC0\x0E\xE0\x0C\xE0\x0A\xC0\x08\xA0\x06\x80\x04\x60\x02\x40\x00\x20\x0E\x00";
+	var state = {
+		palettes: [],
+		art: "",
+		map: "",
+		dplc: "",
+		map_hdr: [],
+		map_arr: [],
+		dplc_hdr: [], // stores VRAM for drawing from alternative palette lines
+		dplc_arr: [],
+		map_frame: 0,
+		palette_line: 0,
+		filename: [],
+		mode: 0 // mapping mode
+	};
+	state.palettes[0] = "\x00\x00\x00\x00\x0A\x22\x0C\x42\x0E\x44\x0E\x66\x0E\xEE\x0A\xAA\x08\x88\x04\x44\x08\xAE\x04\x6A\x00\x0E\x00\x08\x00\xAE\x00\x8E";
+	state.palettes[1] = "\x00\x00\x02\x02\x04\x04\x06\x06\x08\x08\x0A\x0A\x0C\x0C\x0E\x0E\x0E\x0C\x0C\x0A\x0A\x08\x08\x06\x06\x04\x04\x02\x02\x00\x00\x0E";
+	state.palettes[2] = "\x00\x00\x00\x22\x00\x44\x00\x66\x00\x88\x00\xAA\x00\xCC\x00\xEE\x00\xCE\x00\xAC\x00\x8A\x00\x68\x00\x46\x00\x24\x00\x02\x00\xE0";
+	state.palettes[3] = "\x00\x00\x02\x20\x04\x40\x06\x60\x08\x80\x0A\xA0\x0C\xC0\x0E\xE0\x0C\xE0\x0A\xC0\x08\xA0\x06\x80\x04\x60\x02\x40\x00\x20\x0E\x00";
 
-        var clean = copy(state);
-        var load_type = 0;
+	var clean = copy(state);
+	var load_type = 0;
+	var zoom = 4;
+	var ms = [8,6,5];
+	var sonmaped = location.search.indexOf("sonmaped");
 
-        function copy(data) {
-            return JSON.parse(JSON.stringify(data));
-        }
-		
-		function mode() {
-			killmenus();
-			convertmaps();
-			state.mode++;
-			if(state.mode%3==0) state.mode = 0;
-			loadsprite(state.map_frame);
-			checkmode();
+	function copy(data) {
+		return JSON.parse(JSON.stringify(data));
+	}
+	
+	function setzoom(percent) {
+		zoom = percent*4/100;
+		loadtiles();
+		loadmaps();
+		loaddplcs();
+	}
+	
+	function mode() {
+		killmenus();
+		convertmaps();
+		state.mode++;
+		if(state.mode%3==0) state.mode = 0;
+		loadsprite(state.map_frame);
+		checkmode();
+	}
+	
+	function checkmode() {
+		var m = ["Sonic 2","Sonic 3&K","Sonic 1"];
+		$('mode').value = m[state.mode];
+	}
+
+	function mode() {
+		killmenus();
+		convertmaps();
+		state.mode++;
+		if(state.mode%3==0) state.mode = 0;
+		loadsprite(state.map_frame);
+		checkmode();
+	}
+
+	function checkmode() {
+		var m = ["Sonic 2","Sonic 3&K","Sonic 1"];
+		$('mode').value = m[state.mode];
+	}
+
+	function $(id) {
+		return document.getElementById(id)
+	}		
+
+	function readword(data, addr) {
+		return (data.charCodeAt(addr) * 0x100) + data.charCodeAt(addr + 1);
+	}
+
+	function bytesplice(data, location, code) {
+		return data.substring(0, location) + String.fromCharCode(code) + data.substring(location + 1);
+	}
+
+	function datastr2arr(data) {
+		data = data.replace(/\$/g,'').replace(/(?:(?:^|\n)\s+|\s+(?:$|\n))/g,'').replace(/\s+/g,'');
+		return data.split(",");
+	}
+
+	function wordsplice(data, location, code) {
+		data = bytesplice(data, location, code >> 8);
+		return data = bytesplice(data, location + 1, code & 0xFF);
+	}
+
+	function hexdump(data) {
+		out = '';
+		for (var i = 0; i < data.length; i += 2) out += " $" + hex(readword(data, i)) + ",";
+		return out;
+	}
+
+	function bytedump(data) {
+		out = '';
+		for (var i = 0; i < data.length; i++) out += " $" + hex(data.charCodeAt(i)) + ",";
+		return out;
+	}
+
+	function hex(a) {
+		return a.toString(16).toUpperCase();
+	}
+
+	function render_all() {
+		killmenus();
+		draw_palettes();
+		loadtiles();
+		loadmaps();
+		loaddplcs();
+		checkmode();
+	}
+
+	function unload_all() {
+		killmenus();
+		$('tiles').innerHTML = "";
+		$('mappings').innerHTML = "";
+		$('dplc_vram').innerHTML = '';
+		$('mapinfo').innerHTML = '';
+		$('info').innerHTML = '';
+		$('mapmenu').innerHTML = '';
+		$('dplc_vram').style.display = 'none';
+		localStorage.clear();
+		state = copy(clean);
+		draw_palettes();
+		checkmode();
+	}
+
+	window.onload = function () {
+		console.log("In memory of SonMapEd <3, Shouts to Xenowhirl");
+		if (localStorage)
+			state = JSON.parse(localStorage.getItem("state"));
+		if (state) render_all();
+		else {
+			state = copy(clean);
+			draw_palettes();
 		}
-		
-		function checkmode() {
-			var m = ["Sonic 2","Sonic 3&K","Sonic 1"];
-			$('mode').value = m[state.mode];
+		checkmode();
+		$('import').addEventListener('change', loadimport, false);
+		$('mappings').addEventListener('dblclick', deselectmap);
+	};
+	window.onbeforeunload = function () {
+		if (localStorage) {
+			localStorage.setItem("state", JSON.stringify(state));
 		}
+	};
 
-        function $(id) {
-            return document.getElementById(id)
-        }		
 
-        function readword(data, addr) {
-            return (data.charCodeAt(addr) * 0x100) + data.charCodeAt(addr + 1);
-        }
-
-        function bytesplice(data, location, code) {
-            return data.substring(0, location) + String.fromCharCode(code) + data.substring(location + 1);
-        }
-		
-		function datastr2arr(data) {
-			data = data.replace(/\$/g,'').replace(/(?:(?:^|\n)\s+|\s+(?:$|\n))/g,'').replace(/\s+/g,'');
-			return data.split(",");
-		}
-
-        function wordsplice(data, location, code) {
-            data = bytesplice(data, location, code >> 8);
-            return data = bytesplice(data, location + 1, code & 0xFF);
-        }
-
-        function hexdump(data) {
-            out = '';
-            for (var i = 0; i < data.length; i += 2) out += " $" + hex(readword(data, i)) + ",";
-            return out;
-        }
-		
-		function bytedump(data) {
-            out = '';
-            for (var i = 0; i < data.length; i++) out += " $" + hex(data.charCodeAt(i)) + ",";
-            return out;
-        }
-
-        function hex(a) {
-            return a.toString(16).toUpperCase();
-        }
-
-        function render_all() {
-			killmenus();
-            draw_palettes();
-            loadtiles();
-            loadmaps();
-            loaddplcs();
-			checkmode();
-        }
-
-        function unload_all() {
-			killmenus();
-            $('tiles').innerHTML = "";
-            $('mappings').innerHTML = "";
-            $('dplc_vram').innerHTML = '';
-            $('mapinfo').innerHTML = '';
-            $('info').innerHTML = '';
-            $('mapmenu').innerHTML = '';
-            $('dplc_vram').style.display = 'none';
-			localStorage.clear();
-            state = copy(clean);
-            draw_palettes();
-			checkmode();
-        }
-		
-		var sonmaped = location.search.indexOf("sonmaped");
-		
-        window.onload = function () {
-			console.log("In memory of SonMapEd <3, Shouts to Xenowhirl");
-            if (localStorage)
-                state = JSON.parse(localStorage.getItem("state"));
-            if (state) render_all();
-            else {
-                state = copy(clean);
-                draw_palettes();
-            }
-			checkmode();
-			$('import').addEventListener('change', loadimport, false);
-			$('mappings').addEventListener('dblclick', deselectmap);
-        };
-        window.onbeforeunload = function () {
-            if (localStorage) {
-				localStorage.setItem("state", JSON.stringify(state));
-			}
-        };
-		
-
-	(function(a,e,f,g,b,c,d){a.GoogleAnalyticsObject=b;a[b]=a[b]||function(){(a[b].q=a[b].q||[]).push(arguments)};a[b].l=1*new Date;c=e.createElement(f);d=e.getElementsByTagName(f)[0];c.async=1;c.src=g;d.parentNode.insertBefore(c,d)})(window,document,"script","//www.google-analytics.com/analytics.js","ga");ga("create","UA-60292308-1","auto");ga("send","pageview");
-    </script>
-    <script src='pal.js'></script>
-    <script src='file.js'></script>
-    <script src='tile.js'></script> <!-- int -->
-    <script src='map.js'></script> <!-- int -->
-    <script src='import.js'></script> <!-- int -->
-    <script src='keyboard.js'></script>
-    <script src='gui.js'></script>
-    <script src='kensc.js'></script>
-    <script src='cmp.js'></script>
+	//(function(a,e,f,g,b,c,d){a.GoogleAnalyticsObject=b;a[b]=a[b]||function(){(a[b].q=a[b].q||[]).push(arguments)};a[b].l=1*new Date;c=e.createElement(f);d=e.getElementsByTagName(f)[0];c.async=1;c.src=g;d.parentNode.insertBefore(c,d)})(window,document,"script","//www.google-analytics.com/analytics.js","ga");ga("create","UA-60292308-1","auto");ga("send","pageview");
+</script>
+<script src='pal.js'></script>
+<script src='file.js'></script>
+<script src='tile.js'></script> <!-- int -->
+<script src='map.js'></script> <!-- int -->
+<script src='import.js'></script> <!-- int -->
+<script src='keyboard.js'></script>
+<script src='gui.js'></script>
+<script src='kensc.js'></script>
+<script src='cmp.js'></script>
 </head>
 
 <body>
@@ -163,48 +185,48 @@
 		<div id="buffer" style="display:none"></div>
 		<input type="button" value="Sonic 2" id="mode" onClick="mode()">
 		<br>
-        <input type="button" value="Load Palette" onClick="loadpal()">
+		<input type="button" value="Load Palette" onClick="loadpal()">
 		<br>
 		<input type="button" value="Save Palette" onClick="loadpal_gui(1)">
-        <br>
+		<br>
 		<select id="cmp">
-            <option value="-1">Uncompressed</option>
-            <option value="0">Nemesis</option>
-            <option value="1">Kosinski</option>
-            <option value="2">Kosinski-M</option>
-            <option value="3">Comper</option>
-            <option value="4">Enigma</option>
-        </select>
-        <br>
-        <input type="button" value="Load Art" onClick="loadart()">
-        <br>
+			<option value="-1">Uncompressed</option>
+			<option value="0">Nemesis</option>
+			<option value="1">Kosinski</option>
+			<option value="2">Kosinski-M</option>
+			<option value="3">Comper</option>
+			<option value="4">Enigma</option>
+		</select>
+		<br>
+		<input type="button" value="Load Art" onClick="loadart()">
+		<br>
 		<input type="button" value="Save Art" onClick="saveart()">
 		<br>
 		<input type="button" value="Import New Art" onClick="importart()">
-        <br>
-        <input type="button" value="Load Mappings" onClick="loadmap()">
-        <br>
-        <input type="button" value="Save Mappings" onClick="savemap()">
-        <br>
-        <input type="button" value="Load DPLCS" onClick="loadplc()">
-        <br>
-        <input type="button" value="Save DPLCS" onClick="savedplc()">
-        <br>
-        <input type="button" value="Load State" onClick="loadstate()">
-        <br>
-        <input type="button" value="Save State" onClick="savestate()">
-        <br>&nbsp;<br>
-        <input type="button" value="Unload Art" onClick="unloadart()">
 		<br>
-        <input type="button" value="Unload Mappings" onClick="unloadmaps()">
+		<input type="button" value="Load Mappings" onClick="loadmap()">
+		<br>
+		<input type="button" value="Save Mappings" onClick="savemap()">
+		<br>
+		<input type="button" value="Load DPLCS" onClick="loadplc()">
+		<br>
+		<input type="button" value="Save DPLCS" onClick="savedplc()">
+		<br>
+		<input type="button" value="Load State" onClick="loadstate()">
+		<br>
+		<input type="button" value="Save State" onClick="savestate()">
+		<br>&nbsp;<br>
+		<input type="button" value="Unload Art" onClick="unloadart()">
+		<br>
+		<input type="button" value="Unload Mappings" onClick="unloadmaps()">
 		<br>
 		<input type="button" value="Unload DPLCS" onClick="unloaddplc()">
 		<br>
 		<input type="button" value="Unload All" onClick="unload_all()">
-        <br>
-        <!--<input type="button" value="Run Script" onClick="executescript()"><br>-->
-    </div>
+		<br>
+		<!--<input type="button" value="Run Script" onClick="executescript()"><br>-->
+	</div>
 
-    <input type="file" id="files" name="file" onChange="loadfile()" style="display:none;" />
-    <input type="file" id="import" name="import" style="display:none;" />
+	<input type="file" id="files" name="file" onChange="loadfile()" style="display:none;" />
+	<input type="file" id="import" name="import" style="display:none;" />
 </body>
