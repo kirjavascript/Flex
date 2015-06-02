@@ -41,14 +41,14 @@
 	function copy(data) {
 		return JSON.parse(JSON.stringify(data));
 	}
-	
+
 	function setzoom(percent) {
 		zoom = percent*4/100;
 		loadtiles();
 		loadmaps();
 		loaddplcs();
 	}
-	
+
 	function mode() {
 		killmenus();
 		convertmaps();
@@ -57,7 +57,7 @@
 		loadsprite(state.map_frame);
 		checkmode();
 	}
-	
+
 	function checkmode() {
 		var m = ["Sonic 2","Sonic 3&K","Sonic 1"];
 		$('mode').value = m[state.mode];
@@ -79,7 +79,7 @@
 
 	function $(id) {
 		return document.getElementById(id)
-	}		
+	}
 
 	function readword(data, addr) {
 		return (data.charCodeAt(addr) * 0x100) + data.charCodeAt(addr + 1);
@@ -89,14 +89,29 @@
 		return data.substring(0, location) + String.fromCharCode(code) + data.substring(location + 1);
 	}
 
+	function wordsplice(data, location, code) {
+		data = bytesplice(data, location, code >> 8);
+		return data = bytesplice(data, location + 1, code & 0xFF);
+	}
+
 	function datastr2arr(data) {
 		data = data.replace(/\$/g,'').replace(/(?:(?:^|\n)\s+|\s+(?:$|\n))/g,'').replace(/\s+/g,'');
 		return data.split(",");
 	}
 
-	function wordsplice(data, location, code) {
-		data = bytesplice(data, location, code >> 8);
-		return data = bytesplice(data, location + 1, code & 0xFF);
+	function asmstr2arr(data) {
+		data = data.replace(/dc.b/g,"");
+		data = data.replace(/dc.w/g,"");
+		data = data.split("\n").join(",");
+		data = data.replace(/\$/g,'').replace(/(?:(?:^|\n)\s+|\s+(?:$|\n))/g,'').replace(/\s+/g,'');
+		return data.split(",");
+	}
+
+	function rndstr(s)	{
+	    var alpha = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	    for(var i=0; i < s; i++)
+				alpha += alpha.charAt(Math.floor(Math.random()*26));
+	    return alpha.substring(26,26+s);
 	}
 
 	function hexdump(data) {
@@ -166,6 +181,7 @@
 <script src='tile.js'></script> <!-- int -->
 <script src='map.js'></script> <!-- int -->
 <script src='import.js'></script> <!-- int -->
+<!--<script src='parse_asm.js'></script>  int -->
 <script src='keyboard.js'></script>
 <script src='gui.js'></script>
 <script src='kensc.js'></script>
@@ -206,11 +222,21 @@
 		<br>
 		<input type="button" value="Load Mappings" onClick="loadmap()">
 		<br>
-		<input type="button" value="Save Mappings" onClick="savemap()">
+		<span>
+			<input id="map_save" type="button" value="Save Mappings" onClick="savemap('show')">
+		</span>
+		<span id="map_save_type" style="display:none">
+			<input type="button" class="fifty" value=".bin" onclick="savemap('bin')"><input type="button" class="fifty" value=".asm" onclick="savemap('asm')">
+		</span>
 		<br>
 		<input type="button" value="Load DPLCS" onClick="loadplc()">
 		<br>
-		<input type="button" value="Save DPLCS" onClick="savedplc()">
+		<span>
+			<input id="dplc_save" type="button" value="Save DPLCS" onClick="savedplc('show')">
+		</span>
+		<span id="dplc_save_type" style="display:none">
+			<input type="button" class="fifty" value=".bin" onclick="savedplc('bin')"><input type="button" class="fifty" value=".asm" onclick="savedplc('asm')">
+		</span>
 		<br>
 		<input type="button" value="Load State" onClick="loadstate()">
 		<br>

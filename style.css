@@ -3,6 +3,7 @@ a{color:#777}
 img{border:0px;}
 input,select{background-color:#ededed;color:#777;font-family:arial;font-size:10px;font-weight:900;padding:1px;width:100px}
 h1{font-size:120px;margin-bottom:50px}
+.fifty{width:50px}
 .palette{width:25px;height:25px;margin:0px;display:inline-block}
 .choose{cursor:pointer;cursor:hand;}
 .html5nuke{padding:0px;margin:0px;vertical-align: top;}

@@ -32,19 +32,39 @@ function saveart() {
 	else savefile("art.bin",encdec(state.art,$('cmp').value,1));
 }
 
-function savemap() {
+function savemap(type) {
 	if(state.map=="") { createmessage(250,25,"There are no mappings to save",50,50,2000);return 0;}
+	$('map_save').style.display = (type=="show"?"none":"");
+	$('map_save_type').style.display = (type=="show"?"":"none");
+	if(type=="show") return 0;
 	else {
-		if(state.filename[1]) savefile(state.filename[1],mappingoutput());
-		else savefile("map.bin",mappingoutput());
+		if(state.filename[1]) {
+			var filename = state.filename[1].replace(/\.[^/.]+$/, "");
+			filename += "."+type;
+		}
+		else {
+			var filename = "map."+type;
+		}
+		if(type=="bin") savefile(filename,mappingoutput());
+		else if(type=="asm") savefile(filename,mappingoutput_asm());
 	}
 }
 
-function savedplc() {
+function savedplc(type) {
 	if(state.dplc=="") { createmessage(250,25,"There are no DPLCs to save",50,50,2000);return 0;}
+	$('dplc_save').style.display = (type=="show"?"none":"");
+	$('dplc_save_type').style.display = (type=="show"?"":"none");
+	if(type=="show") return 0;
 	else {
-		if(state.filename[2]) savefile(state.filename[2],dplcoutput());
-		else savefile("dplc.bin",dplcoutput());
+		if(state.filename[2]) {
+			var filename = state.filename[2].replace(/\.[^/.]+$/, "");
+			filename += "."+type;
+		}
+		else {
+			var filename = "dplc."+type;
+		}
+		if(type=="bin") savefile(filename,dplcoutput());
+		else if(type=="asm") savefile(filename,dplcoutput_asm());
 	}
 }
 
@@ -84,32 +104,32 @@ function loadfile() {
     reader.onloadend = function(evt) {
       if (evt.target.readyState == FileReader.DONE) {
 		switch(load_type) {
-			case 0: 
+			case 0:
 				state.art = evt.target.result;
 				state.art = encdec(state.art,$('cmp').value);
-				loadtiles(); 
-				state.filename[0] = filename; 
-				loadsprite(state.map_frame); 
+				loadtiles();
+				state.filename[0] = filename;
+				loadsprite(state.map_frame);
 				break;
-			case 1: state.map = evt.target.result; loadmaps(1); state.filename[1] = filename; break;
-			case 2: state.dplc = evt.target.result; loaddplcs(1); state.filename[2] = filename; break;
+			case 1: state.map = evt.target.result; state.filename[1] = filename; loadmaps(1);  break;
+			case 2: state.dplc = evt.target.result; state.filename[2] = filename; loaddplcs(1);  break;
 			case 3: state.palettes[0] = evt.target.result.substr(0,32); render_all(); break;
 			case 4: state.palettes[1] = evt.target.result.substr(0,32); render_all(); break;
 			case 5: state.palettes[2] = evt.target.result.substr(0,32); render_all(); break;
 			case 6: state.palettes[3] = evt.target.result.substr(0,32); render_all(); break;
-			case 7: state.palettes[1] = evt.target.result.substr(0,32); 
-				state.palettes[2] = evt.target.result.substr(32,64); 
-				state.palettes[3] = evt.target.result.substr(64,96); 
+			case 7: state.palettes[1] = evt.target.result.substr(0,32);
+				state.palettes[2] = evt.target.result.substr(32,64);
+				state.palettes[3] = evt.target.result.substr(64,96);
 				render_all(); break;
 			case 8: state = JSON.parse(evt.target.result); render_all(); break;
             case 9:
-				if(evt.target.result.length>=32) state.palettes[0] = evt.target.result.substr(0,32); 
-				if(evt.target.result.length>=64) state.palettes[1] = evt.target.result.substr(32,64); 
-				if(evt.target.result.length>=96) state.palettes[2] = evt.target.result.substr(64,96); 
-				if(evt.target.result.length>=128) state.palettes[3] = evt.target.result.substr(96,128); 
+				if(evt.target.result.length>=32) state.palettes[0] = evt.target.result.substr(0,32);
+				if(evt.target.result.length>=64) state.palettes[1] = evt.target.result.substr(32,64);
+				if(evt.target.result.length>=96) state.palettes[2] = evt.target.result.substr(64,96);
+				if(evt.target.result.length>=128) state.palettes[3] = evt.target.result.substr(96,128);
 				render_all(); break;
 		}
-		
+
       }
     };
     var data = files[0].slice(0, files[0].size);
@@ -118,7 +138,7 @@ function loadfile() {
 
 function importart() {
 	$('import').click();
-} 
+}
 function loadimport(e){
 	var reader = new FileReader();
     reader.onload = function(event){
@@ -136,5 +156,5 @@ function loadimport(e){
         }
         img.src = event.target.result;
     }
-    reader.readAsDataURL(e.target.files[0]);  
+    reader.readAsDataURL(e.target.files[0]);
 }

@@ -130,7 +130,7 @@ function changepal_gui(line,num) {
 
 function palettename(ele) {
 	var clr = ele.style.backgroundColor.match(/\d+/g);
-	$('palfoot').innerHTML = "Red: "+hexdump(clr[0])+" Green: "+hexdump(clr[1])+" Blue: "+hexdump(clr[2]);
+	$('palfoot').innerHTML = "Red: "+clr[0]+" Green: "+clr[1]+" Blue: "+clr[2];
 }
 
 var colours = [0,2,4,6,8,0xA,0xC,0xE];

@@ -16,7 +16,7 @@ Each mapping is 5 bytes long, taking the form TTTT TTTT 0000 WWHH PCCY XAAA AAAA
 
 	The VRAM offset specified in an object's SST will be added to the PCCY XAAA AAAA AAAA word.
 
-Sonic 2: 
+Sonic 2:
 
 	TTTT TTTT 0000 WWHH PCCY XAAA AAAA AAAA PCCY XAAA AAAA AAAA LLLL LLLL LLLL LLLL
 
@@ -44,7 +44,7 @@ function png() {
 	c.width=1000;
 	c.height=1000;
 	// fill rect
-	piece = c.getContext("2d");	
+	piece = c.getContext("2d");
 	piece.scale(1/zoom,1/zoom);
 
 	if(!$('m0')) return 0;
@@ -87,7 +87,7 @@ function png() {
 				left -= off[i][0];
 				top += off[i][1];
 				piece.save();
-				piece.scale(-1,1) 
+				piece.scale(-1,1)
 				piece.drawImage(s[j],-1*(w-left),top);
 				piece.restore();
 			}
@@ -96,7 +96,7 @@ function png() {
 				left += off[i][0];
 				top -= off[i][1];
 				piece.save();
-				piece.scale(1,-1) 
+				piece.scale(1,-1)
 				piece.drawImage(s[j],left,-1*(h-top));
 				piece.restore();
 			}
@@ -105,7 +105,7 @@ function png() {
 				left -= off[i][0];
 				top -= off[i][1];
 				piece.save();
-				piece.scale(-1,-1) 
+				piece.scale(-1,-1)
 				piece.drawImage(s[j],-1*(w-left),-1*(h-top));
 				piece.restore();
 			}
@@ -201,11 +201,87 @@ function convertmaps() {
 	*/
 }
 
+function parse_asm(x,l) {
+	var labels = [];
+	var offsets = [];
+	x=x.split("\n");
+	for(var i=0;i<x.length;i++) {
+		if(x[i].indexOf(";")!=-1)
+			x[i]=x[i].substring(0,x[i].indexOf(";")); // remove comments
+		if(x[i].indexOf(":")!=-1)
+			labels[labels.length]=x[i].split(":")[0], // grab labels
+			x[i]=":"+x[i].split(":").pop();			  // remove labels
+	}
+	x=x.join("\n").replace(/\s/g, "").replace(/\$/g,"").replace(/even/g,""); // remove whitespace and $ symbol
+	x=x.split(":");
+
+	// get all label offsets
+	for(var i=0;i<labels.length;i++) {
+			var count = 0;
+			for(var j=0;j<=i;j++) {
+				var data = x[j].split("dc.");
+				for(var k=0;k<data.length;k++){
+					if(data[k]!="") {
+						var len =data[k][0]=="b"?1:data[k][0]=="w"?2:4;
+						var values = data[k].substring(1).split(",");
+						count+=(values.length*len);
+					}
+				}
+			}
+			offsets[offsets.length] = count;
+	}
+	//console.log(labels);
+	//console.log(offsets);
+
+	if(l&&x[0]=="") {state.filename[l] = labels[0];} //label persistance
+
+	var out = [];
+
+	for(var i=0;i<x.length;i++) {
+		var str = "";
+		var p = 0;
+		var data = x[i].split("dc.");
+		for(var j=0;j<data.length;j++) {
+			if(data[j]!="") {
+				var len = data[j][0];
+				var values = data[j].substring(1).split(",");
+				for(var k=0;k<values.length;k++) {
+					if(values[k].indexOf("-")!=-1 && len=="w") { // header assumed to be word sized
+						var h = values[k].split("-");
+						h = [labels.indexOf(h[0]),labels.indexOf(h[1])]; // get label #
+						h = [h[0]!=-1?offsets[h[0]]:0,h[1]!=-1?offsets[h[1]]:0]; // get label offset
+						h = h[0]-h[1]; // math
+						str = wordsplice(str,p,h),p+=2;
+					}
+					else {
+						if(len=="b") str = bytesplice(str,p,parseInt(values[k],16)),p++;
+						else if(len=="w") str = wordsplice(str,p,parseInt(values[k],16)),p+=2;
+						else if(len=="l") {
+							var l = parseInt(values[k],16);
+							if(l>0xFFFF) {
+								str = wordsplice(str,p,parseInt(values[k],16)/0x10000),p+=2;
+								str = wordsplice(str,p,parseInt(values[k],16)&0xFFFF),p+=2;
+							}
+							else {
+								str = wordsplice(str,p,0),p+=2;
+								str = wordsplice(str,p,parseInt(values[k],16)),p+=2;
+							}
+						}
+					}
+				}
+			}
+		}
+		out[out.length] = str;
+	}
+	
+	return out.join("");
+}
+
 function loadmaps(file) {
 	if (state.map == "") return 0;
+	if (file && state.filename[1].split('.').pop()=="asm") state.map = parse_asm(state.map,"map");
 	if (state.map_hdr == [] || file) state.map_hdr = loadheaders(state.map);
 	if (state.map_arr == [] || file) loadmaparrays(), state.map_frame = 0;
-
 	loadsprite(state.map_frame);
 }
 
@@ -239,10 +315,12 @@ function mappingoutput() {
 	var out = "";
 	var h = state.map_arr.length * 2;
 	var buf = [];
+	var empty_first_frame = 0;
 	for (var i = 0; i < state.map_arr.length; i++) {
 		if (state.mode==2) var size = state.map_arr[i].charCodeAt(0);
 		else var size = readword(state.map_arr[i], 0);
-		if(size==0 && sonmaped<0) {
+		if(i==0&&size==0) empty_first_frame = 1;
+		if(size==0 && sonmaped<0 && empty_first_frame) {
 			out = wordsplice(out, i*2, 0);
 		}
 		else {
@@ -254,6 +332,57 @@ function mappingoutput() {
 	}
 	out += buf.join("");
 	return out;
+}
+
+function mappingoutput_asm() {
+	var empty_first_frame = 0;
+	var out = "";
+	var headers = [];
+	var prefix = state.filename["map"]?state.filename["map"]:"_Mapping";
+	// data
+	for(var i=0;state.map_arr[i];i++) {
+		if(state.mode!=2) qty = readword(state.map_arr[i],0);
+		else qty = state.map_arr[i].charCodeAt(0);
+		if(i==0&&qty==0&&sonmaped<0) empty_first_frame = 1;
+
+		if(qty==0&&empty_first_frame) {
+			headers[i] = 0;
+			continue;
+		}
+
+		headers[i] = rndstr(3)+"_Frame"+hex(i);
+		out+=headers[i]+":";
+		var bytes = bytedump(state.map_arr[i]).split(",");
+		while(bytes.length>1) { // last element is empty?
+			var size = bytes.shift();
+			if(state.mode!=2) {
+					var extra = bytes.shift();
+					size+=", "+extra;
+			}
+			out+=" dc.b "+size+"\n";
+
+			for(j=0;j<qty;j++) {
+					out+="\tdc.b ";
+					for(k=0;k<ms[state.mode];k++)
+						out+=bytes.shift()+(k==(ms[state.mode]-1)?"":",");
+					out+="\n";
+			}
+		}
+	}
+
+	var top = "; Sprite mappings - generated by Flex - "+$('mode').value+" format\n\n";
+	top+= prefix+":\n"; // user input/store original label in state.map["asm"]
+	// headers
+
+	for (var i = 0; i < state.map_arr.length; i++) {
+		var ext = (headers[i]==0?"":"-"+prefix)
+		if(i%2==0) top+="\tdc.w "+headers[i]+ext;
+		else top+=", "+headers[i]+ext+"\n";
+	}
+	top+="\n\n";
+
+	//document.write(top+out); // debug
+	return top+out;
 }
 
 function nextsprite() {
@@ -338,13 +467,13 @@ function getsprites(num) {
 	else return readword(state.map_arr[num], 0);
 }
 
-function getadv(num) { 
+function getadv(num) {
 	return num * ms[state.mode];
 }
 
 function gettop_off(num,adv) {
 	var top_off = state.map_arr[num].charCodeAt((state.mode==2?1:2) + adv); // top edge pos
-	if (top_off >= 0x80) top_off = 0x100 - top_off, top_off = -top_off; // fix signedness	
+	if (top_off >= 0x80) top_off = 0x100 - top_off, top_off = -top_off; // fix signedness
 	return top_off;
 }
 
@@ -359,9 +488,9 @@ function getsecond(num,adv) {
 function getleft_off(num,adv) {
 	if(state.mode==2) {
 		var left_off = state.map_arr[num].charCodeAt(5 + adv); // left signed
-		if (left_off >= 0x80) left_off = 0x100 - left_off, left_off = -left_off; // fix signedness	
+		if (left_off >= 0x80) left_off = 0x100 - left_off, left_off = -left_off; // fix signedness
 	}
-	else {			
+	else {
 		var left_off = readword(state.map_arr[num], (state.mode==1?6:8) + adv); // left signed
 		if (left_off >= 0x8000) left_off = 0x10000 - left_off, left_off = -left_off;
 	}
@@ -420,7 +549,7 @@ function loadsprite(num, skipload) {
 		$('mappings').appendChild(_g[1]);
 	}
 	else $('mappings').innerHTML = '';
-	
+
     var sprites = getsprites(num);
 
 	if (!skipload) {
@@ -489,7 +618,7 @@ function loadonemap(cls, el, tile, x, y, id, dplc,pal) {
 	//c.style.position = "absolute";
 	c.className = cls;
 	c.innerHTML = tile;
-	piece = c.getContext("2d");	
+	piece = c.getContext("2d");
 	if(pal>0) {
 		if(dplc && $('d'+tile)) {
 			piece.drawImage(drawtile(state.dplc_hdr[tile],pal,1), 0, 0); // dplc_hdr has tile location array for current DPLC
@@ -814,33 +943,33 @@ function editraw(type) { // 0 = mappings, 1 = dplcs
 		var size = 2;
 		var out = "Edit raw DPLCS";
 	}
-	out += "<textarea style=\"width:200;height:180\" id='rawdata'>";
+	out += "<textarea style=\"width:"+(type?"2":"3")+"00;height:180\" id='rawdata'>";
 	if(state.mode==2) {
-		out += ' $' + data.charCodeAt(0) + ",";
+		out += '\tdc.b $' + data.charCodeAt(0);
 		for (var i = 0; i < data.charCodeAt(0); i++) {
-			out += '\n' + bytedump(data.substr((i * size) + 1, size));
+			out += '\n\tdc.b' + bytedump(data.substr((i * size) + 1, size)).slice(0,-1);
 		}
 	}
 	else {
-		out += ' $' + readword(data, 0) + ",";
+		out += '\tdc.w $' + readword(data, 0);
 		for (var i = 0; i < readword(data, 0); i++) {
-			out += '\n' + hexdump(data.substr((i * size) + 2, size));
+			out += '\n\tdc.w' + hexdump(data.substr((i * size) + 2, size)).slice(0,-1);
 		}
 	}
 	out += '</textarea><br>';
 	out += '<input type="button" value="Save" onClick="saverawdata('+type+')">';
 	out += '<input type="button" value="Close" onClick="this.parentNode.remove()">';
-	createmessage(200, 225, out, 70, 20,null,"editraw");
+	createmessage((type?200:300), 225, out, 70, 20,null,"editraw");
 }
 
 function saverawdata(type) {
-	var data = datastr2arr($('rawdata').value);
+	var data = asmstr2arr($('rawdata').value);
 	var out = "";
 	for(var i=0;i<data.length;i++) {
 		if(data[i]!="") {
 			if(state.mode==2) out += bytesplice("\x00",0,parseInt(data[i],16))
 			else out += wordsplice("\x00\x00",0,parseInt(data[i],16))
-				}
+		}
 	}
 	if(type==0) state.map_arr[state.map_frame] = out;
 	else state.dplc_arr[state.map_frame] = out;
@@ -851,6 +980,7 @@ function saverawdata(type) {
 
 function loaddplcs(file) {
 	if (state.dplc == "") return 0;
+	if (file && state.filename[2].split('.').pop()=="asm")state.dplc = parse_asm(state.dplc,"dplc");
 	if (state.dplc_hdr == [] || file) state.dplc_hdr = loadheaders(state.dplc);
 	if (state.dplc_arr == [] || file) loaddplcarrays();
 	if ($('mappingmenu')) $('mappingmenu').remove();
@@ -876,12 +1006,13 @@ function dplcoutput() {
 	// create headers
 	var out = "";
 	var h = state.dplc_arr.length * 2;
-
+	var empty_first_frame = 0;
 	var buf = [];
 	for (var i = 0; i < state.dplc_arr.length; i++) {
 		if(state.mode==2) var size = state.dplc_arr[i].charCodeAt(0);
 		else var size = readword(state.dplc_arr[i], 0);
-		if (size==0 && sonmaped<0) {
+		if(i==0&&size==0) empty_first_frame = 1;
+		if (size==0 && sonmaped<0 && empty_first_frame) {
 			out = wordsplice(out, i*2, 0);
 		}
 		else {
@@ -893,6 +1024,59 @@ function dplcoutput() {
 	// add data
 	out += buf.join("");
 	return out;
+}
+
+function dplcoutput_asm() {
+	var empty_first_frame = 0;
+	var out = "";
+	var headers = [];
+	var prefix = state.filename["dplc"]?state.filename["dplc"]:"_DPLC";
+	// data
+	for(var i=0;state.dplc_arr[i];i++) {
+		if(state.mode==2) var qty = state.dplc_arr[i].charCodeAt(0);
+		else var qty = readword(state.dplc_arr[i], 0);
+		if(i==0&&qty==0&&sonmaped<0) empty_first_frame = 1;
+
+		if(qty==0&&empty_first_frame) {
+			headers[i] = 0;
+			continue;
+		}
+
+		headers[i] = rndstr(3)+"_Frame"+hex(i);
+		out+=headers[i]+":";
+		var bytes = bytedump(state.dplc_arr[i]).split(",");
+		while(bytes.length>1) { // last element is empty?
+			var size = bytes.shift();
+			if(state.mode!=2) {
+					var extra = bytes.shift();
+					size+=", "+extra;
+			}
+			out+=" dc.b "+size+"\n";
+
+			for(j=0;j<qty;j++) {
+					out+="\tdc.b ";
+					out+=bytes.shift()+",";
+					out+=bytes.shift();
+					out+="\n";
+			}
+		}
+	}
+
+
+	var top = "; DPLCs - generated by Flex - "+$('mode').value+" format\n\n";
+	top+= prefix+":\n"; // user input/store original label in state.map["asm"]
+	// headers
+
+	for (var i = 0; i < state.map_arr.length; i++) {
+		var ext = (headers[i]==0?"":"-"+prefix)
+		if(i%2==0) top+="\tdc.w "+headers[i]+ext;
+		else top+=", "+headers[i]+ext+"\n";
+	}
+	top+="\n\n";
+
+
+	//document.write(top+out); // debug
+	return top+out;
 }
 
 function unloaddplc() {
