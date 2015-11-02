@@ -1,6 +1,6 @@
 /* tile manipulation */
 
-function nexttile()  {return (state.art.length/0x20);} 
+function nexttile()  {return (state.art.length/0x20);}
 // originally {for(var i=0;$('t'+i);i++);return i;} for some reason
 
 function getmapped() {
@@ -71,6 +71,7 @@ function deletetile(tile) {
 	state.art = state.art.substr(0,tile*0x20) + state.art.substr((tile+1)*0x20);
 	$('t'+tile).remove();
 	for(var i=(tile+1);$('t'+i);i++) {
+		$('t'+i).innerHTML = i-1;
 		$('t'+i).id = 't'+(i-1);
 	}
 }
@@ -89,7 +90,7 @@ function delete_shift(tile) {
 			if (map_tile_addr > tile) {
 				second = (second-map_tile_addr) + (map_tile_addr - 1);
 				state.map_arr[i] = wordsplice(state.map_arr[i], (state.mode==2?3:4) + adv, second);
-			}			
+			}
 		}
 	}
 }
@@ -121,10 +122,10 @@ function delete_unmapped() {
 
 function loadtiles() {
 	if(state.art.length==0) return 0;
-	
+
 	$('tiles').innerHTML = "";
 	var tiles = (state.art.length/0x20);
-	
+
 	for(var i=0;i<tiles;i++) {
 		drawtile(i,state.palette_line);
 	}
@@ -176,7 +177,7 @@ function drawtile(tile,line,p) {
 function drawtocanvas(ele,tile,line,raw) {
 	var pxl = 0;
 	var y = -1;
-	
+
 	for(var i=0;i<0x20;i++) {
 		if(raw) pxlz = raw.charCodeAt(i);
 		else var pxlz = state.art.substr(0x20*tile,0x20).charCodeAt(i);
@@ -193,7 +194,8 @@ function drawtocanvas(ele,tile,line,raw) {
 }
 
 function vram_set(o,p,n) {
-	o.fillStyle = $('p_'+p+'_'+n).style.backgroundColor;
+	if(n==0&&transparency) o.fillStyle = 'rgba(0,0,0,0)';
+	else o.fillStyle = $('p_'+p+'_'+n).style.backgroundColor;
 }
 
 function vram_draw(o,x,y) {

@@ -37,6 +37,11 @@ Each sprite mapping consists of four words. A contiguous list of sprite mappings
 
 /* The format of DPLCs is simple: the first word (or byte in sonic 1) is the number of DPLC requests to make, and each successive word (up to the value of the first word) is split up so that the first nybble is the number of tiles to load minus one, and the last three nybbles are the offset (in tiles, i.e. multiples of $20 bytes) of the art to load from the beginning of the object's specified art offset in ROM. Therefore, in order to request x tiles to be loaded, you need 1+floor(x/16) words in the DPLC. */
 
+function ttoggle() {
+		transparency = !transparency;
+		loadtiles();
+		loadmaps();
+}
 
 function png() {
 	//$('buffer').innerHTML = '';
@@ -66,7 +71,9 @@ function png() {
 
 	var size = [0,0];
 
-	for(var i=0;$('m'+i);i++) {
+	var map_qty = i;
+
+	for(var i=map_qty-1;i>=0;i--) {
 		var	s = $('m'+i).getElementsByClassName("map");
 		var w = parseInt($('m'+i).style.width);
 		var h = parseInt($('m'+i).style.height);
@@ -259,7 +266,7 @@ function parse_asm(x,l) {
 						else if(len=="l") {
 							var l = parseInt(values[k],16);
 							if(l>0xFFFF) {
-								str = wordsplice(str,p,parseInt(values[k],16)/0x10000),p+=2;
+								str = wordsplice(str,p,parseInt(parseInt(values[k],16)/0x10000)),p+=2;
 								str = wordsplice(str,p,parseInt(values[k],16)&0xFFFF),p+=2;
 							}
 							else {
@@ -273,13 +280,13 @@ function parse_asm(x,l) {
 		}
 		out[out.length] = str;
 	}
-	
+
 	return out.join("");
 }
 
 function loadmaps(file) {
 	if (state.map == "") return 0;
-	if (file && state.filename[1].split('.').pop()=="asm") state.map = parse_asm(state.map,"map");
+	if (file && state.filename[1].split('.').pop()=="asm") state.map = parse_asm(state.map,"_map");
 	if (state.map_hdr == [] || file) state.map_hdr = loadheaders(state.map);
 	if (state.map_arr == [] || file) loadmaparrays(), state.map_frame = 0;
 	loadsprite(state.map_frame);
@@ -338,7 +345,7 @@ function mappingoutput_asm() {
 	var empty_first_frame = 0;
 	var out = "";
 	var headers = [];
-	var prefix = state.filename["map"]?state.filename["map"]:"_Mapping";
+	var prefix = state.filename["_map"]?state.filename["_map"]:"_Mapping";
 	// data
 	for(var i=0;state.map_arr[i];i++) {
 		if(state.mode!=2) qty = readword(state.map_arr[i],0);
@@ -562,7 +569,7 @@ function loadsprite(num, skipload) {
 			dplc_load(num);
 		}
 	}
-	for (var i = 0; i < sprites; i++) {
+	for (var i = sprites-1; i >= 0 ; i--) {
 		var adv = getadv(i);
 		var top_off = gettop_off(num,adv);
 		var mp = getmp(num,adv) & 0xF;
@@ -617,6 +624,7 @@ function loadonemap(cls, el, tile, x, y, id, dplc,pal) {
 	if (x) c.style.left = x + "px";
 	//c.style.position = "absolute";
 	c.className = cls;
+	if(transparency) c.style.backgroundImage = "none";
 	c.innerHTML = tile;
 	piece = c.getContext("2d");
 	if(pal>0) {
@@ -980,7 +988,7 @@ function saverawdata(type) {
 
 function loaddplcs(file) {
 	if (state.dplc == "") return 0;
-	if (file && state.filename[2].split('.').pop()=="asm")state.dplc = parse_asm(state.dplc,"dplc");
+	if (file && state.filename[2].split('.').pop()=="asm")state.dplc = parse_asm(state.dplc,"_dplc");
 	if (state.dplc_hdr == [] || file) state.dplc_hdr = loadheaders(state.dplc);
 	if (state.dplc_arr == [] || file) loaddplcarrays();
 	if ($('mappingmenu')) $('mappingmenu').remove();
@@ -1030,7 +1038,7 @@ function dplcoutput_asm() {
 	var empty_first_frame = 0;
 	var out = "";
 	var headers = [];
-	var prefix = state.filename["dplc"]?state.filename["dplc"]:"_DPLC";
+	var prefix = state.filename["_dplc"]?state.filename["_dplc"]:"_DPLC";
 	// data
 	for(var i=0;state.dplc_arr[i];i++) {
 		if(state.mode==2) var qty = state.dplc_arr[i].charCodeAt(0);

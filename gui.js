@@ -50,8 +50,8 @@ function getXY(a){if(a=a||window.event){if(a.pageX||0==a.pageX)return[a.pageX,a.
 
 function killmenus() {
 	clearTimeout(window.anim_timer);
-	var menus = ['tilemenu','mappingmenu','palettemenu','loadpal','editraw','adddplc','animmenu','importmenu','deletetilemenu','guidelinesmenu'];
-	
+	var menus = ['tilemenu','mappingmenu','palettemenu','loadpal','editraw','adddplc','animmenu','importmenu','deletetilemenu','guidelinesmenu','zoommenu'];
+
 	for(var i=0;i<menus.length;i++) if($(menus[i])) $(menus[i]).remove();
 }
 
@@ -94,7 +94,7 @@ function loadpal_gui(save) {
 	<input type="button" value="Close" onClick="this.parentNode.remove()">
 	*/}).toString().replace(/^[^\/]+\/\*!?/, '').replace(/\*\/[^\/]+$/, '');
 	createmessage(100,90,data, null, null, null, "loadpal");
-	
+
 	if (save) {
 		$('plb').value = 'Save';
 		$('plb').setAttribute("onclick","savepal($('pal_select').value)");
@@ -111,7 +111,7 @@ function changepal_gui(line,num) {
 	<input type="button" value="Close" onClick="this.parentNode.remove()" style="width:60px">
 	*/}).toString().replace(/^[^\/]+\/\*!?/, '').replace(/\*\/[^\/]+$/, '');
 	createmessage(560,370,data, null, null, null, "palettemenu");
-	
+
 	for(var j=0;j<8;j++) {
 		for(var i=0;i<8;i++) {
 			for(var k=0;k<8;k++) {
@@ -120,11 +120,11 @@ function changepal_gui(line,num) {
 				c.setAttribute("onclick","update_palette(this,"+line+","+num+","+k+","+j+","+i+")");
 				c.setAttribute("onmouseover","palettename(this)");
 				c.style.backgroundColor="#"+dc(i)+dc(j)+dc(k);
-				$('editpalette').appendChild(c);			
+				$('editpalette').appendChild(c);
 			}
 		}
 	}
-	
+
 	$('paltitle').innerHTML = $('p_'+line+'_'+num).style.backgroundColor.match(/\d+/g).toString();
 }
 
@@ -154,13 +154,13 @@ function tilemenu(ele) {
 	}else {
 		tile = ele.innerHTML;
 	}
-	
+
 	tile_data = state.art.substr((tile*0x20),0x20);
     var data = (function () {
         /*
 		Tile Editor (<span id="tileid"></span>)
 			<div class="edittile" id="edittile"></div>
-			
+
 			Select colours from the palette<br>&nbsp;<br>
 			<div class="selectors" id="writetile_0"></div>
 			<div class="selectors" id="writetile_1"></div>
@@ -170,7 +170,7 @@ function tilemenu(ele) {
 		*/
     }).toString().replace(/^[^\/]+\/\*!?/, '').replace(/\*\/[^\/]+$/, '');
     createmessage(260, 360, data, null, null, null, "tilemenu");
-	
+
 	for(var i=0;i<0x20;i++) {
 		var pxlz = tile_data.charCodeAt(i);
 		pxl0 = pxlz >> 4;
@@ -179,7 +179,7 @@ function tilemenu(ele) {
 		$('edittile').appendChild(draw_bigtile(pxl1,0));
 	}
 	$('tileid').innerHTML = parseInt(tile).toString(16).toUpperCase();
-	
+
 	palettehandler($('p_0_0'),0);
 	palettehandler($('p_0_1'),1);
 }
@@ -259,11 +259,11 @@ function addmappingmenu(ele,dyn,move) {
     createmessage(340, 360, data, null, null, null, "mappingmenu");
 
 	if(ele) menu_tile = ele.id.slice(1);
-	
+
 	// zoomfix
 	for(var i=0;i<3;i++) $('ta'+i).style.width = ((zoom*8) * (i+1))+'px';
 	$('addtable').style.width = ((zoom*80) + 30)+'px';
-    
+
     for (var x = 0, i = 0; 4 > i; i++) {
         t = menu_tile;
 
@@ -295,14 +295,14 @@ function addmappingmenu(ele,dyn,move) {
     }
     for (var i = 0; i < 16; i++)
         $('a' + i).setAttribute("onclick", "addpiece(" + menu_tile + ",this,"+dyn+")")
-        
+
     if(dyn) {
         $('mapdplc').innerHTML = "Add new piece from DPLC list";
     }
     else if (state.dplc!="") {
         $('mapdplc').innerHTML += ' with DPLC';
     }
-    
+
 }
 
 function generatematricies(height) {
@@ -330,10 +330,12 @@ function spritemenu() {
         		<input type="button" value="Duplicate Frame" onClick="dupemap()"><br>
         		<input type="button" value="Delete Frame" onClick="delmap()"><br>
         		<input type="button" value="Delete Unused Art" onClick="delete_unmapped()"><br>
-				<input type="button" value="Export to PNG" onClick="png()"><br>
+						<input type="button" value="Transparency" onClick="ttoggle()"><br>
+						<input type="button" value="Set Zoom" onClick="zoommenu()"><br>
+						<input type="button" value="Export to PNG" onClick="png()"><br>
         		<input type="button" value="Create Animation" onClick="anim()"><br>
         		<input type="button" value="Guidelines" onClick="guidelinesmenu()"><br>
-        		
+
         	*/
     }).toString().replace(/^[^\/]+\/\*!?/, '').replace(/\*\/[^\/]+$/, '');
     $('mapmenu').innerHTML = data;
@@ -372,7 +374,7 @@ function transformmenu() {
         	*/
     }).toString().replace(/^[^\/]+\/\*!?/, '').replace(/\*\/[^\/]+$/, '');
     $('mapmenu').innerHTML += data;
-	
+
 	//setpriority();
 }
 
@@ -390,12 +392,12 @@ function piecemenu() {
         	*/
     }).toString().replace(/^[^\/]+\/\*!?/, '').replace(/\*\/[^\/]+$/, '');
     $('mapmenu').innerHTML += data;
-	
+
 	setpriority();
 }
 
 function deletetilemenu(ele) {
-	killmenus();	
+	killmenus();
 	if(state.dplc != ""&&ele.id=="sub") {
 		tile = $('d'+ele.innerHTML).innerHTML; // oh my god what am I doing
 	}else {
@@ -412,7 +414,7 @@ function deletetilemenu(ele) {
 		*/
     }).toString().replace(/^[^\/]+\/\*!?/, '').replace(/\*\/[^\/]+$/, '');
     createmessage(260, 320, data, null, null, null, "deletetilemenu");
-	
+
 	for(var i=0;i<0x20;i++) {
 		var pxlz = tile_data.charCodeAt(i);
 		pxl0 = pxlz >> 4;
@@ -430,7 +432,7 @@ function deletetilemenudelete(tile) {
 }
 
 function guidelinesmenu() {
-	killmenus();	
+	killmenus();
     var data = (function () {
         /*
 		Set mapping guidelines
@@ -443,6 +445,21 @@ function guidelinesmenu() {
 		*/
     }).toString().replace(/^[^\/]+\/\*!?/, '').replace(/\*\/[^\/]+$/, '');
     createmessage(260, 100, data, null, null, null, "guidelinesmenu");
+}
+
+function zoommenu() {
+	killmenus();
+    var data = (function () {
+        /*
+		Set Zoom Level
+			<br>&nbsp;<br>
+			<input type="text" id="zoom" value="100" class="miniinput"> %
+			<br>&nbsp;<br>
+			<input type="button" value="Set" onClick="setzoom($('zoom').value)" style="width:60px">
+			<input type="button" value="Close" onClick="this.parentNode.remove()" style="width:60px">
+		*/
+    }).toString().replace(/^[^\/]+\/\*!?/, '').replace(/\*\/[^\/]+$/, '');
+    createmessage(200, 100, data, null, null, null, "zoommenu");
 }
 
 function guidelines(x_pos,y_pos) {
