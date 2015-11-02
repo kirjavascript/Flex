@@ -67,11 +67,11 @@ Mousetrap.bindGlobal('ctrl+m',mode);
 
 // backspace to unload
 
-Mousetrap.bindGlobal('backspace+u',delete_unmapped);
-Mousetrap.bindGlobal('backspace+a',unloadart);
-Mousetrap.bindGlobal('backspace+m',unloadmaps);
-Mousetrap.bindGlobal('backspace+d',unloaddplc);
-Mousetrap.bindGlobal('backspace+x',unload_all);
+Mousetrap.bindGlobal('ctrl+alt+u',delete_unmapped);
+Mousetrap.bindGlobal('ctrl+alt+a',unloadart);
+Mousetrap.bindGlobal('ctrl+alt+m',unloadmaps);
+Mousetrap.bindGlobal('ctrl+alt+d',unloaddplc);
+Mousetrap.bindGlobal('ctrl+alt+x',unload_all);
 Mousetrap.bindGlobal('~',delete_last_map);
 
 Mousetrap.bindGlobal('pageup',function(){for(var i=0;i++<8;)nextsprite()});
