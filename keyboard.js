@@ -19,6 +19,8 @@ Mousetrap=function(a){var d={},e=a.stopCallback;a.stopCallback=function(b,c,a){r
 
 Mousetrap.bindGlobal('[',prevsprite);
 Mousetrap.bindGlobal(']',nextsprite);
+Mousetrap.bindGlobal('shift+left',prevsprite);
+Mousetrap.bindGlobal('shift+right',nextsprite);
 Mousetrap.bindGlobal('{',prevswap);
 Mousetrap.bindGlobal('}',nextswap);
 Mousetrap.bindGlobal('ctrl+ins',addmap);
