@@ -2,6 +2,7 @@
 
 var _mousedown=0;
 var _mousebutton=0;
+var _mouseimport=0;
 
 document.onmouseup = function(e) {
 	drag_mouseup(e);
@@ -9,7 +10,7 @@ document.onmouseup = function(e) {
 };
 document.onmousemove = function (e) {
 	drag_mousemove(e);
-	window.getSelection().removeAllRanges();
+	if(_mouseimport) window.getSelection().removeAllRanges();
 };
 document.onmousedown = function(e) {
 	_mousedown=1;
@@ -50,6 +51,7 @@ function getXY(a){if(a=a||window.event){if(a.pageX||0==a.pageX)return[a.pageX,a.
 
 function killmenus() {
 	clearTimeout(window.anim_timer);
+	_mouseimport = 0;
 	var menus = ['tilemenu','mappingmenu','palettemenu','loadpal','editraw','adddplc','animmenu','importmenu','deletetilemenu','guidelinesmenu','zoommenu'];
 
 	for(var i=0;i<menus.length;i++) if($(menus[i])) $(menus[i]).remove();
